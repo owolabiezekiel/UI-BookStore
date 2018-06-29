@@ -1,7 +1,10 @@
 package com.fitn.uibooks.repository;
 
+import com.fitn.uibooks.Util.NumberGenerator;
+import com.fitn.uibooks.Util.TextUtils;
 import com.fitn.uibooks.model.Book;
 
+import javax.inject.Inject;
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.persistence.TypedQuery;
@@ -18,12 +21,19 @@ public class BookRepository {
     @PersistenceContext (unitName = "bookStorePU")
     private EntityManager entityManager;
 
+    @Inject
+    TextUtils textUtils;
+    @Inject
+    NumberGenerator isbnGenerator;
+
     public Book find(@NotNull  Long id){
         return entityManager.find(Book.class, id);
     }
 
     @Transactional(REQUIRED)
     public Book create(@NotNull Book book){
+        book.setTitle(textUtils.sanitize(book.getTitle()));
+        book.setIsbn(isbnGenerator.generateNumber());
         entityManager.persist(book);
         return book;
     }
